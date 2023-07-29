@@ -4,7 +4,6 @@
 	import '../app.postcss'
 	import { page } from '$app/stores'
 	import { AppBar, AppShell, LightSwitch } from '@skeletonlabs/skeleton'
-	import { onMount } from 'svelte'
 
 	export let data
 
@@ -43,12 +42,12 @@
 
 	<slot />
 
-	<svelte:fragment slot="footer">
+	<svelte:fragment slot="pageFooter">
 		<div
 			class="container flex grow flex-col items-center mx-auto gap-8 px-2 py-8 text-md font-light"
 		>
 			{#if $page.url.pathname == '/'}
-				<p class="text-xl">
+				<p>
 					Go to <a class="a" href="yourname">{$page.url.origin}/yourname</a> for a personalized ai generated
 					greeting.
 				</p>
