@@ -31,14 +31,16 @@ export const createChatCompletion = async (name: string) => {
     }),
     body: JSON.stringify({
       model: 'gpt-4',
-      messages: [
-        {
-          role: 'system',
-          content: 'You are Simon, a charismatic fullstack developer. Please only repond as Simon.'},
+      messages: 
+      [
+        // {
+        //   role: 'system',
+        //   content: 'You are Simon, a charismatic fullstack developer. Please only repond as Simon.'},
         {
         role: 'user',
         content: `Please respond as if you just saw ${name}, and you wanted to greet him. Make sure to include a pun, ideally using their name!`
-      }]
+      }
+    ]
     })
   })
 
