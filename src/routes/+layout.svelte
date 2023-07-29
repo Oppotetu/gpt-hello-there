@@ -49,7 +49,7 @@
 		>
 			{#if $page.url.pathname == '/'}
 				<p class="text-xl">
-					Go to <a class="a" href="yourname">www.localhost.no/yourname</a> for a personalized ai generated
+					Go to <a class="a" href="yourname">{$page.url.origin}/yourname</a> for a personalized ai generated
 					greeting.
 				</p>
 			{/if}
