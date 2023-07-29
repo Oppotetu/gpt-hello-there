@@ -1,3 +1,4 @@
+import { isBlocklisted } from '$lib/server/isBlocklisted'
 import { createChatCompletion } from '$lib/server/openai.js'
 import { supabase } from "$lib/supabaseClient"
 
@@ -5,27 +6,71 @@ import { supabase } from "$lib/supabaseClient"
 export const load = async ({params, setHeaders}) => {
   const {name = 'World'} = params
 
-  const {data, error} = await supabase.from('greeting').select('body').ilike('name', `%${name}%`)
-  let greeting = data?.at(0)?.body
+  if (isBlocklisted(name)) {
+		throw new Error(
+				'We don’t think that’s your name, we think you’re being naughty 😡',
+		)
+	}
 
-  if (!greeting?.length) {
-    // console.log('inside_if')
-    greeting = await createChatCompletion(name)
-    const {error} = await supabase.from('greeting').insert({name: name, body: greeting})
-
-    if (error) {
-      throw new Error('Failed to cache greeting')
-    }
-  }
-  
-  const meta = {title: `Hello there, ${name} 👋`}
+	if (name.length > 16) {
+		throw new Error(
+				'Sorry but that name is too long',
+		)
+	}
 
   setHeaders({
-    'cache-control': `max-age=${5 * 60}`
-  })
+		'Cache-Control': `s-maxage=${60 * 5}, stale-while-revalidate=${60 * 60 * 24}`,
+	})
 
+  const meta = {title: `Hello there, ${name} 👋`}
+
+  const {data, error} = await supabase.from('greeting').select('body').ilike('name', `%${name}%`)
+  const dbGreeting = data?.at(0)?.body
+
+  if (dbGreeting) {
+    return {
+      meta,
+      dbGreeting,
+      streamed: {aiGreeting: null}
+    }
+  }
+
+  const aiGreetingPromise = createChatCompletion(name).then(
+    async (aiGreeting) => {
+      const {error } = await supabase.from('greeting').insert({name: name, body: aiGreeting})
+
+      if (error) {
+        throw new Error('Failed to cache greeting')
+      }      
+
+      return aiGreeting
+    }
+  )
+
+  // const aiGreetingPromise = async () => {
+  //   const aiGreeting = await createChatCompletion(name)
+  //   const {error} = await supabase.from('greeting').insert({name: name, body: aiGreeting})
+
+  //   if (error) {
+  //     throw new Error('Failed to cache greeting')
+  //   }
+
+  //   return aiGreeting
+  // }
+
+  // if (!dbGreeting?.length) {
+  //   // console.log('inside_if')
+  //   const aiGreeting = await createChatCompletion(name)
+  //   const {error} = await supabase.from('greeting').insert({name: name, body: aiGreeting})
+
+  //   if (error) {
+  //     throw new Error('Failed to cache greeting')
+  //   }
+  // }
+  
   return {
     meta,     
-    greeting
+    dbGreeting: null,
+    streamed: {aiGreeting: aiGreetingPromise}
   }
 }
