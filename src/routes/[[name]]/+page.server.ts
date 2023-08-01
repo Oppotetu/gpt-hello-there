@@ -24,10 +24,12 @@ export const load = async ({params, setHeaders}) => {
 
   const meta = {title: `Hello there, ${name} 👋`}
 
-  const {data, error} = await supabase.from('greeting').select('body').ilike('name', `%${name}%`)
-  const dbGreeting = data?.at(0)?.body
+  const {data, error} = await supabase.from('greeting').select('body, name').ilike('name', `%${name}%`)
 
-  if (dbGreeting) {
+  const dbGreeting = data?.at(0)?.body
+  const dbName = data?.at(0)?.name
+
+  if (dbGreeting && dbName.length === name.length) {
     return {
       meta,
       dbGreeting,

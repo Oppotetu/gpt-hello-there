@@ -1,17 +1,28 @@
 <script lang="ts">
 	import { goto } from '$app/navigation'
 
-	// import { ConicGradient } from '@skeletonlabs/skeleton'
-	// import type { ConicStop } from '@skeletonlabs/skeleton'
-
 	export let data
 
 	let name: string
 
-	// const conicStops: ConicStop[] = [
-	// 	{ color: 'transparent', start: 0, end: 25 },
-	// 	{ color: 'rgb(var(--color-primary-500))', start: 75, end: 100 }
-	// ]
+	function typewriter(node: any, { speed = 5 }) {
+		const valid = node.childNodes.length === 1 && node.childNodes[0].nodeType === Node.TEXT_NODE
+
+		if (!valid) {
+			throw new Error(`This transition only works on elements with a single text node child`)
+		}
+
+		const text = node.textContent
+		const duration = text.length / (speed * 0.01)
+
+		return {
+			duration,
+			tick: (t: any) => {
+				const i = Math.trunc(text.length * t)
+				node.textContent = text.slice(0, i)
+			}
+		}
+	}
 </script>
 
 <div class="container flex grow flex-col items-center mx-auto gap-8 px-2 py-8 text-3xl font-light">
@@ -20,7 +31,6 @@
 	{:else}
 		{#await data.streamed.aiGreeting}
 			<p class="animate-pulse text-8xl">🤖</p>
-			<!-- <ConicGradient stops={conicStops} spin>Loading</ConicGradient> -->
 		{:then greeting}
 			{greeting}
 		{/await}
@@ -39,5 +49,5 @@
 		<span>🤖 What is your name?</span>
 		<input bind:value={name} class="input input-success" type="text" placeholder="Name" />
 	</label>
-	<button type="submit" class="btn w-full bg-secondary-500">Ok</button>
+	<button type="submit" class="btn text-surface-50 w-full bg-secondary-500">Greet me!</button>
 </form>

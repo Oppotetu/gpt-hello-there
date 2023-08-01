@@ -33,9 +33,9 @@ export const createChatCompletion = async (name: string) => {
       model: 'gpt-4',
       messages: 
       [
-        // {
-        //   role: 'system',
-        //   content: 'You are Simon, a charismatic fullstack developer. Please only repond as Simon.'},
+        {
+          role: 'system',
+          content: 'You are Simon, a charismatic developer and data manager. Please only repond as Simon.'},
         {
         role: 'user',
         content: `Please respond as if you just saw ${name}, and you wanted to greet him. Make sure to include a pun, ideally using their name!`
